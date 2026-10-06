@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Bancada</title>
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#0F5C63">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Bancada">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="icon" href="icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#EDF0EF;--card:#fff;--ink:#14232A;--mut:#5B6B70;--pri:#0F5C63;--acc:#E0A100;--ok:#1E7F4F;--bad:#B3392F;--line:#D5DCDB;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0E1719;--card:#16242A;--ink:#E6EEEE;--mut:#93A5A9;--pri:#4FB3BB;--acc:#F0B72A;--ok:#4FC389;--bad:#F0786C;--line:#243940}}
+:root[data-theme="dark"]{--bg:#0E1719;--card:#16242A;--ink:#E6EEEE;--mut:#93A5A9;--pri:#4FB3BB;--acc:#F0B72A;--ok:#4FC389;--bad:#F0786C;--line:#243940}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font-family:'Bricolage Grotesque',system-ui,-apple-system,'Segoe UI',sans-serif;font-size:16px;line-height:1.4}
+main{max-width:640px;margin:0 auto;padding:16px 16px 96px}
+h1{font-size:28px;font-weight:800;margin:0;letter-spacing:-.02em}
+h1 small{display:block;font-size:13px;font-weight:400;color:var(--mut);letter-spacing:0}
+h2{font-size:17px;margin:24px 0 8px;font-weight:600}
+header{display:flex;justify-content:space-between;align-items:flex-end;border-bottom:4px solid var(--acc);padding-bottom:10px;margin-bottom:16px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:12px 14px;margin-bottom:10px}
+.slab{background:var(--pri);color:#fff;border-radius:10px;padding:18px;margin-bottom:12px}
+.slab span{font-size:14px;opacity:.85}
+.slab b{display:block;font-size:42px;font-weight:800;letter-spacing:-.03em;line-height:1.1}
+:root[data-theme="dark"] .slab,:root:not([data-theme="light"]) .slab{color:#06191B}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.grid .card{margin:0}
+.grid span{font-size:13px;color:var(--mut)}
+.grid b{display:block;font-size:20px}
+label{display:block;font-size:13px;color:var(--mut);margin:12px 0 4px}
+input,select,textarea,button{font:inherit;color:var(--ink)}
+input,select,textarea{width:100%;padding:10px;border:1px solid var(--line);border-radius:8px;background:var(--card)}
+input:focus,select:focus,textarea:focus,button:focus-visible{outline:3px solid var(--acc);outline-offset:1px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.row{display:grid;grid-template-columns:1fr 78px 78px 36px;gap:6px;margin-bottom:6px}
+.row input{padding:9px 6px}
+.btn{background:var(--pri);color:#fff;border:0;border-radius:8px;padding:12px 16px;font-weight:600;cursor:pointer;width:100%;margin-top:14px}
+:root[data-theme="dark"] .btn,:root:not([data-theme="light"]) .btn{color:#06191B}
+.btn.ghost{background:transparent;border:1px solid var(--line);color:var(--ink)}
+.btn.del{background:transparent;border:1px solid var(--bad);color:var(--bad)}
+.sm{width:auto;padding:8px 12px;margin:6px 6px 0 0;font-size:14px}
+.x{border:1px solid var(--line);background:transparent;border-radius:8px;cursor:pointer;color:var(--mut)}
+.item{cursor:pointer;display:flex;justify-content:space-between;gap:10px}
+.item p{margin:0;font-size:13px;color:var(--mut)}
+.item strong{display:block}
+.lucro{text-align:right;font-weight:600;white-space:nowrap}
+.pos{color:var(--ok)}.neg{color:var(--bad)}
+.tag{display:inline-block;font-size:12px;padding:1px 8px;border-radius:99px;border:1px solid var(--line);color:var(--mut);margin-top:4px}
+.tag.rec{border-color:var(--acc);color:var(--acc)}
+.prev{background:var(--card);border:1px dashed var(--pri);border-radius:10px;padding:10px 14px;margin-top:14px}
+.prev div{display:flex;justify-content:space-between}
+nav{position:fixed;left:0;right:0;bottom:0;background:var(--card);border-top:1px solid var(--line);display:flex;padding-bottom:env(safe-area-inset-bottom,0px)}
+nav button{flex:1;padding:14px 4px;border:0;background:transparent;font-weight:600;color:var(--mut);cursor:pointer;border-top:3px solid transparent}
+nav button.on{color:var(--pri);border-top-color:var(--acc)}
+.empty{text-align:center;color:var(--mut);padding:28px 8px}
+textarea{min-height:90px;font-size:12px}
+.hide{display:none}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<main>
+<header><h1>Bancada<small>Seu serviço, seu lucro, tudo em ordem.</small></h1><input type="month" id="mes" style="width:auto" aria-label="Mês"></header>
+
+<section id="v-resumo">
+  <div class="slab"><span>Lucro no mês</span><b id="r-lucro">R$ 0,00</b></div>
+  <div class="grid">
+    <div class="card"><span>Faturado</span><b id="r-fat"></b></div>
+    <div class="card"><span>Custos</span><b id="r-cus"></b></div>
+    <div class="card"><span>A receber</span><b id="r-rec"></b></div>
+    <div class="card"><span>Serviços</span><b id="r-qtd"></b></div>
+  </div>
+  <h2>Lucro por equipamento</h2><div id="r-eq"></div>
+  <h2>Garantias vencendo (15 dias)</h2><div id="r-gar"></div>
+  <h2>Backup dos dados</h2>
+  <div class="card">
+    <p style="margin:0 0 6px;font-size:14px;color:var(--mut)">Os dados ficam neste navegador. Gere o backup e guarde o texto (ex.: nas suas notas ou WhatsApp).</p>
+    <textarea id="bk" aria-label="Backup"></textarea>
+    <button class="btn ghost sm" id="bk-g" type="button">Gerar backup</button>
+    <button class="btn ghost sm" id="bk-r" type="button">Restaurar</button>
+    <p id="bk-m" style="margin:6px 0 0;font-size:13px"></p>
+  </div>
+</section>
+
+<section id="v-lista" class="hide">
+  <input id="busca" placeholder="Buscar cliente, equipamento ou defeito" aria-label="Buscar" style="margin-bottom:12px">
+  <div id="lista"></div>
+</section>
+
+<section id="v-novo" class="hide">
+  <h2 id="f-tit" style="margin-top:0">Novo serviço</h2>
+  <form id="f" onsubmit="return false">
+    <div class="two"><div><label for="f-data">Data</label><input type="date" id="f-data"></div>
+    <div><label for="f-st">Situação</label><select id="f-st"><option value="pago">Pago</option><option value="receber">A receber</option><option value="orc">Orçamento</option></select></div></div>
+    <label for="f-cli">Cliente</label><input id="f-cli" placeholder="Nome do cliente" autocomplete="off">
+    <label for="f-tel">Telefone (opcional)</label><input id="f-tel" inputmode="tel">
+    <div class="two"><div><label for="f-eq">Equipamento</label><select id="f-eq"><option>Geladeira</option><option>Freezer</option><option>Expositora de bebidas</option><option>Máquina de lavar</option><option>Tanquinho</option><option>Micro-ondas</option><option>Outro</option></select></div>
+    <div><label for="f-mod">Marca / modelo</label><input id="f-mod"></div></div>
+    <label for="f-def">Defeito e serviço feito</label><textarea id="f-def" style="font-size:16px;min-height:70px"></textarea>
+    <label>Peças e gás (descrição, custo, cobrado)</label>
+    <div id="itens"></div>
+    <button class="btn ghost sm" id="add" type="button">+ Adicionar peça ou gás</button>
+    <div class="two"><div><label for="f-mo">Mão de obra (cobrado)</label><input id="f-mo" type="number" step="0.01" inputmode="decimal"></div>
+    <div><label for="f-des">Deslocamento (custo)</label><input id="f-des" type="number" step="0.01" inputmode="decimal"></div></div>
+    <label for="f-gar">Garantia (dias)</label><input id="f-gar" type="number" inputmode="numeric" value="90">
+    <div class="prev"><div><span>Total cobrado</span><b id="p-tot"></b></div><div><span>Custos</span><b id="p-cus"></b></div><div><span>Lucro</span><b id="p-luc"></b></div></div>
+    <button class="btn" id="salvar" type="button">Salvar serviço</button>
+    <button class="btn del hide" id="excluir" type="button">Excluir serviço</button>
+    <button class="btn ghost hide" id="cancel" type="button">Cancelar</button>
+  </form>
+</section>
+</main>
+<nav><button data-v="resumo" class="on">Resumo</button><button data-v="lista">Serviços</button><button data-v="novo">Novo</button></nav>
+
+<script>
+var K='bancada.v1',S=[],E=null,$=function(i){return document.getElementById(i)};
+try{S=JSON.parse(localStorage.getItem(K)||'[]')||[]}catch(e){S=[]}
+function save(){try{localStorage.setItem(K,JSON.stringify(S))}catch(e){}}
+function R(n){return (n||0).toLocaleString('pt-BR',{style:'currency',currency:'BRL'})}
+function N(v){var n=parseFloat(v);return isNaN(n)?0:n}
+function esc(t){return String(t==null?'':t).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
+function hoje(){var d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
+function calc(s){var it=s.itens||[],rev=N(s.mo),cus=N(s.des);it.forEach(function(i){rev+=N(i.v);cus+=N(i.c)});return{rev:rev,cus:cus,luc:rev-cus}}
+function fimGar(s){if(!s.gar)return null;var d=new Date(s.data+'T12:00:00');d.setDate(d.getDate()+N(s.gar));return d}
+function fd(d){return d.toLocaleDateString('pt-BR')}
+function show(v){['resumo','lista','novo'].forEach(function(x){$('v-'+x).classList.toggle('hide',x!==v)});
+  document.querySelectorAll('nav button').forEach(function(b){b.classList.toggle('on',b.dataset.v===v)});
+  if(v==='novo'&&E===null)reset();window.scrollTo(0,0);draw()}
+document.querySelectorAll('nav button').forEach(function(b){b.onclick=function(){if(b.dataset.v!=='novo')E=null;show(b.dataset.v)}});
+
+function row(i){i=i||{};var d=document.createElement('div');d.className='row';
+  d.innerHTML='<input class="d" placeholder="Ex.: capacitor, R134a" value="'+esc(i.d)+'"><input class="c" type="number" step="0.01" inputmode="decimal" placeholder="Custo" value="'+esc(i.c)+'"><input class="v" type="number" step="0.01" inputmode="decimal" placeholder="Cobrado" value="'+esc(i.v)+'"><button type="button" class="x" aria-label="Remover">×</button>';
+  d.querySelector('.x').onclick=function(){d.remove();prev()};$('itens').appendChild(d)}
+function lerItens(){return Array.prototype.map.call($('itens').children,function(r){return{d:r.querySelector('.d').value.trim(),c:r.querySelector('.c').value,v:r.querySelector('.v').value}}).filter(function(i){return i.d||N(i.c)||N(i.v)})}
+function ler(){return{data:$('f-data').value||hoje(),st:$('f-st').value,cli:$('f-cli').value.trim(),tel:$('f-tel').value.trim(),eq:$('f-eq').value,mod:$('f-mod').value.trim(),def:$('f-def').value.trim(),itens:lerItens(),mo:$('f-mo').value,des:$('f-des').value,gar:$('f-gar').value}}
+function prev(){var c=calc(ler());$('p-tot').textContent=R(c.rev);$('p-cus').textContent=R(c.cus);$('p-luc').textContent=R(c.luc);$('p-luc').className=c.luc<0?'neg':'pos'}
+function fill(s){s=s||{};$('f-data').value=s.data||hoje();$('f-st').value=s.st||'pago';$('f-cli').value=s.cli||'';$('f-tel').value=s.tel||'';$('f-eq').value=s.eq||'Geladeira';$('f-mod').value=s.mod||'';$('f-def').value=s.def||'';
+  $('itens').innerHTML='';(s.itens&&s.itens.length?s.itens:[{}]).forEach(row);$('f-mo').value=s.mo||'';$('f-des').value=s.des||'';$('f-gar').value=s.gar==null?90:s.gar;
+  $('f-tit').textContent=E===null?'Novo serviço':'Editar serviço';$('excluir').classList.toggle('hide',E===null);$('cancel').classList.toggle('hide',E===null);prev()}
+function reset(){E=null;fill()}
+$('add').onclick=function(){row()};
+$('f').addEventListener('input',prev);
+$('salvar').onclick=function(){var s=ler();if(!s.cli){$('f-cli').focus();$('f-cli').placeholder='Informe o nome do cliente';return}
+  if(E===null){s.id=Date.now();S.push(s)}else{s.id=S[E].id;S[E]=s}save();E=null;show('lista')};
+$('excluir').onclick=function(){if(E!==null&&confirm('Excluir este serviço?')){S.splice(E,1);save();E=null;show('lista')}};
+$('cancel').onclick=function(){E=null;show('lista')};
+
+function draw(){
+  var m=$('mes').value,mm=S.filter(function(s){return s.st!=='orc'&&s.data.slice(0,7)===m}),T={rev:0,cus:0,luc:0,rec:0},eq={};
+  mm.forEach(function(s){var c=calc(s);T.rev+=c.rev;T.cus+=c.cus;T.luc+=c.luc;if(s.st==='receber')T.rec+=c.rev;eq[s.eq]=(eq[s.eq]||0)+c.luc});
+  $('r-lucro').textContent=R(T.luc);$('r-fat').textContent=R(T.rev);$('r-cus').textContent=R(T.cus);$('r-rec').textContent=R(T.rec);$('r-qtd').textContent=mm.length;
+  var ks=Object.keys(eq).sort(function(a,b){return eq[b]-eq[a]});
+  $('r-eq').innerHTML=ks.length?ks.map(function(k){return'<div class="card item"><strong>'+esc(k)+'</strong><span class="lucro">'+R(eq[k])+'</span></div>'}).join(''):'<div class="empty">Nenhum serviço neste mês ainda.</div>';
+  var now=new Date(),lim=new Date();lim.setDate(lim.getDate()+15);
+  var g=S.filter(function(s){var f=fimGar(s);return s.st!=='orc'&&f&&f>=now&&f<=lim});
+  $('r-gar').innerHTML=g.length?g.map(function(s){return'<div class="card item"><div><strong>'+esc(s.cli)+'</strong><p>'+esc(s.eq)+'</p></div><span class="lucro">até '+fd(fimGar(s))+'</span></div>'}).join(''):'<div class="empty">Nenhuma garantia vencendo.</div>';
+  var q=$('busca').value.toLowerCase(),L=S.map(function(s,i){return{s:s,i:i}}).filter(function(o){return(o.s.cli+' '+o.s.eq+' '+o.s.mod+' '+o.s.def).toLowerCase().indexOf(q)>-1}).sort(function(a,b){return b.s.data.localeCompare(a.s.data)||b.s.id-a.s.id});
+  $('lista').innerHTML=L.length?L.map(function(o){var s=o.s,c=calc(s),f=fimGar(s),st={pago:'Pago',receber:'A receber',orc:'Orçamento'}[s.st];
+    return'<div class="card item" data-i="'+o.i+'" tabindex="0" role="button"><div><strong>'+esc(s.cli)+'</strong><p>'+esc(s.eq)+(s.mod?' · '+esc(s.mod):'')+' · '+fd(new Date(s.data+'T12:00:00'))+'</p><span class="tag '+(s.st==='receber'?'rec':'')+'">'+st+'</span>'+(f&&s.st!=='orc'?' <span class="tag">Garantia até '+fd(f)+'</span>':'')+'</div><div class="lucro '+(c.luc<0?'neg':'pos')+'">'+R(c.luc)+'<p>de '+R(c.rev)+'</p></div></div>'}).join(''):'<div class="empty">'+(S.length?'Nada encontrado.':'Nenhum serviço registrado. Toque em Novo para começar.')+'</div>';
+  document.querySelectorAll('#lista .item').forEach(function(el){var open=function(){E=+el.dataset.i;fill(S[E]);show('novo')};el.onclick=open;el.onkeydown=function(e){if(e.key==='Enter')open()}})
+}
+$('mes').value=hoje().slice(0,7);$('mes').onchange=draw;$('busca').oninput=draw;
+$('bk-g').onclick=function(){$('bk').value=JSON.stringify(S);$('bk-m').textContent='Backup gerado. Copie o texto acima e guarde.'};
+$('bk-r').onclick=function(){try{var d=JSON.parse($('bk').value);if(!Array.isArray(d))throw 0;if(confirm('Substituir os dados atuais por este backup?')){S=d;save();draw();$('bk-m').textContent='Dados restaurados.'}}catch(e){$('bk-m').textContent='Texto de backup inválido. Cole o backup completo e tente de novo.'}};
+draw();
+if('serviceWorker' in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('sw.js').catch(function(){})})}
+</script>
+</body>
+</html>
