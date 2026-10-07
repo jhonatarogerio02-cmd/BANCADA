@@ -63,6 +63,21 @@ nav button.on{color:var(--pri);border-top-color:var(--acc)}
 textarea{min-height:90px;font-size:12px}
 .hide{display:none}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
+
+#rec{--ink:#14232A;--line:#B9C3C2;position:fixed;inset:0;z-index:20;background:#E3E8E7;overflow:auto;padding:12px;padding-top:calc(12px + env(safe-area-inset-top,0px))}
+#rec .bar{max-width:640px;margin:0 auto 10px}
+#rec .btn{background:#0F5C63!important;color:#fff!important}
+#rec .btn.ghost{background:transparent!important;color:#14232A!important}
+#rec .paper{max-width:640px;margin:0 auto;background:#fff;color:#111;padding:24px;border-radius:6px}
+.paper h1{font-size:22px;border-bottom:3px solid #E0A100;padding-bottom:6px}
+.paper h3{margin:14px 0 4px;letter-spacing:.08em}
+.paper p{margin:4px 0}
+.paper table{width:100%;border-collapse:collapse;margin:12px 0}
+.paper td{padding:6px 0;border-bottom:1px solid #ccc}
+.paper td+td{text-align:right;white-space:nowrap}
+.paper .tot td{font-weight:700;border-bottom:2px solid #111}
+.paper .sig{margin-top:48px;border-top:1px solid #111;width:60%;padding-top:4px;font-size:13px}
+@media print{main,nav,#rec .bar{display:none!important}#rec{position:static;background:#fff;padding:0}body{background:#fff}#rec .paper{max-width:none;padding:0}}
 </style>
 </head>
 <body>
@@ -70,15 +85,23 @@ textarea{min-height:90px;font-size:12px}
 <header><h1>Bancada<small>Seu serviço, seu lucro, tudo em ordem.</small></h1><input type="month" id="mes" style="width:auto" aria-label="Mês"></header>
 
 <section id="v-resumo">
-  <div class="slab"><span>Lucro no mês</span><b id="r-lucro">R$ 0,00</b></div>
+  <div class="slab"><span>Lucro líquido do mês</span><b id="r-lucro">R$ 0,00</b></div>
   <div class="grid">
     <div class="card"><span>Faturado</span><b id="r-fat"></b></div>
     <div class="card"><span>Custos</span><b id="r-cus"></b></div>
     <div class="card"><span>A receber</span><b id="r-rec"></b></div>
-    <div class="card"><span>Serviços</span><b id="r-qtd"></b></div>
+    <div class="card"><span>Despesas fixas</span><b id="r-dsp"></b></div>
   </div>
+  <h2>Últimos 6 meses</h2><div class="card" id="r-gr"></div>
+  <h2>Clientes que devem</h2><div id="r-dev"></div>
+  <h2>Despesas fixas do mês</h2><div class="card"><div class="row" style="grid-template-columns:1fr 100px"><input id="d-d" placeholder="Ex.: combustível"><input id="d-v" type="number" step="0.01" inputmode="decimal" placeholder="Valor"></div><button class="btn sm" id="d-add" type="button">Adicionar despesa</button><div id="d-l"></div></div>
   <h2>Lucro por equipamento</h2><div id="r-eq"></div>
+  <h2>Melhores clientes</h2><div id="r-cl"></div>
   <h2>Garantias vencendo (15 dias)</h2><div id="r-gar"></div>
+  <h2>Revisões a fazer (30 dias)</h2><div id="r-rv"></div>
+  <h2>Meus dados (saem no recibo)</h2>
+  <div class="card"><label for="p-nome" style="margin-top:0">Seu nome ou empresa</label><input id="p-nome"><label for="p-tel">Telefone</label><input id="p-tel" inputmode="tel"><label for="p-cid">Cidade</label><input id="p-cid"><label for="p-pix">Chave Pix (opcional)</label><input id="p-pix">
+  <button class="btn sm" id="p-salvar" type="button">Salvar</button><span id="p-m" style="font-size:13px"></span></div>
   <h2>Backup dos dados</h2>
   <div class="card">
     <p style="margin:0 0 6px;font-size:14px;color:var(--mut)">Os dados ficam neste navegador. Gere o backup e guarde o texto (ex.: nas suas notas ou WhatsApp).</p>
@@ -99,7 +122,7 @@ textarea{min-height:90px;font-size:12px}
   <form id="f" onsubmit="return false">
     <div class="two"><div><label for="f-data">Data</label><input type="date" id="f-data"></div>
     <div><label for="f-st">Situação</label><select id="f-st"><option value="pago">Pago</option><option value="receber">A receber</option><option value="orc">Orçamento</option></select></div></div>
-    <label for="f-cli">Cliente</label><input id="f-cli" placeholder="Nome do cliente" autocomplete="off">
+    <label for="f-cli">Cliente</label><input id="f-cli" list="cls" placeholder="Nome do cliente" autocomplete="off"><datalist id="cls"></datalist>
     <label for="f-tel">Telefone (opcional)</label><input id="f-tel" inputmode="tel">
     <div class="two"><div><label for="f-eq">Equipamento</label><select id="f-eq"><option>Geladeira</option><option>Freezer</option><option>Expositora de bebidas</option><option>Máquina de lavar</option><option>Tanquinho</option><option>Micro-ondas</option><option>Outro</option></select></div>
     <div><label for="f-mod">Marca / modelo</label><input id="f-mod"></div></div>
@@ -110,13 +133,19 @@ textarea{min-height:90px;font-size:12px}
     <div class="two"><div><label for="f-mo">Mão de obra (cobrado)</label><input id="f-mo" type="number" step="0.01" inputmode="decimal"></div>
     <div><label for="f-des">Deslocamento (custo)</label><input id="f-des" type="number" step="0.01" inputmode="decimal"></div></div>
     <label for="f-gar">Garantia (dias)</label><input id="f-gar" type="number" inputmode="numeric" value="90">
+    <div class="two"><div><label for="f-fp">Forma de pagamento</label><select id="f-fp"><option>Pix</option><option>Dinheiro</option><option>Cartão</option><option>Outro</option></select></div>
+    <div id="w-tx" class="hide"><label for="f-tx">Taxa do cartão (%)</label><input id="f-tx" type="number" step="0.01" inputmode="decimal"></div></div>
+    <div id="w-rec" class="hide"><label for="f-rec">Valor já recebido (parcial)</label><input id="f-rec" type="number" step="0.01" inputmode="decimal"></div>
+    <label for="f-rv">Revisão periódica em (meses, 0 = não)</label><input id="f-rv" type="number" inputmode="numeric" value="0">
     <div class="prev"><div><span>Total cobrado</span><b id="p-tot"></b></div><div><span>Custos</span><b id="p-cus"></b></div><div><span>Lucro</span><b id="p-luc"></b></div></div>
     <button class="btn" id="salvar" type="button">Salvar serviço</button>
+    <button class="btn ghost" id="recibo" type="button">Gerar recibo / orçamento</button>
     <button class="btn del hide" id="excluir" type="button">Excluir serviço</button>
     <button class="btn ghost hide" id="cancel" type="button">Cancelar</button>
   </form>
 </section>
 </main>
+<div id="rec" class="hide"></div>
 <nav><button data-v="resumo" class="on">Resumo</button><button data-v="lista">Serviços</button><button data-v="novo">Novo</button></nav>
 
 <script>
@@ -127,7 +156,8 @@ function R(n){return (n||0).toLocaleString('pt-BR',{style:'currency',currency:'B
 function N(v){var n=parseFloat(v);return isNaN(n)?0:n}
 function esc(t){return String(t==null?'':t).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
 function hoje(){var d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
-function calc(s){var it=s.itens||[],rev=N(s.mo),cus=N(s.des);it.forEach(function(i){rev+=N(i.v);cus+=N(i.c)});return{rev:rev,cus:cus,luc:rev-cus}}
+function calc(s){var it=s.itens||[],rev=N(s.mo),cus=N(s.des);it.forEach(function(i){rev+=N(i.v);cus+=N(i.c)});if(s.fp==='Cartão')cus+=rev*N(s.tx)/100;return{rev:rev,cus:cus,luc:rev-cus}}
+function saldo(s){return s.st==='receber'?Math.max(0,calc(s).rev-N(s.rec)):0}
 function fimGar(s){if(!s.gar)return null;var d=new Date(s.data+'T12:00:00');d.setDate(d.getDate()+N(s.gar));return d}
 function fd(d){return d.toLocaleDateString('pt-BR')}
 function show(v){['resumo','lista','novo'].forEach(function(x){$('v-'+x).classList.toggle('hide',x!==v)});
@@ -139,23 +169,25 @@ function row(i){i=i||{};var d=document.createElement('div');d.className='row';
   d.innerHTML='<input class="d" placeholder="Ex.: capacitor, R134a" value="'+esc(i.d)+'"><input class="c" type="number" step="0.01" inputmode="decimal" placeholder="Custo" value="'+esc(i.c)+'"><input class="v" type="number" step="0.01" inputmode="decimal" placeholder="Cobrado" value="'+esc(i.v)+'"><button type="button" class="x" aria-label="Remover">×</button>';
   d.querySelector('.x').onclick=function(){d.remove();prev()};$('itens').appendChild(d)}
 function lerItens(){return Array.prototype.map.call($('itens').children,function(r){return{d:r.querySelector('.d').value.trim(),c:r.querySelector('.c').value,v:r.querySelector('.v').value}}).filter(function(i){return i.d||N(i.c)||N(i.v)})}
-function ler(){return{data:$('f-data').value||hoje(),st:$('f-st').value,cli:$('f-cli').value.trim(),tel:$('f-tel').value.trim(),eq:$('f-eq').value,mod:$('f-mod').value.trim(),def:$('f-def').value.trim(),itens:lerItens(),mo:$('f-mo').value,des:$('f-des').value,gar:$('f-gar').value}}
+function ler(){return{data:$('f-data').value||hoje(),st:$('f-st').value,cli:$('f-cli').value.trim(),tel:$('f-tel').value.trim(),eq:$('f-eq').value,mod:$('f-mod').value.trim(),def:$('f-def').value.trim(),itens:lerItens(),mo:$('f-mo').value,des:$('f-des').value,gar:$('f-gar').value,fp:$('f-fp').value,tx:$('f-tx').value,rec:$('f-rec').value,rv:$('f-rv').value}}
 function prev(){var c=calc(ler());$('p-tot').textContent=R(c.rev);$('p-cus').textContent=R(c.cus);$('p-luc').textContent=R(c.luc);$('p-luc').className=c.luc<0?'neg':'pos'}
 function fill(s){s=s||{};$('f-data').value=s.data||hoje();$('f-st').value=s.st||'pago';$('f-cli').value=s.cli||'';$('f-tel').value=s.tel||'';$('f-eq').value=s.eq||'Geladeira';$('f-mod').value=s.mod||'';$('f-def').value=s.def||'';
-  $('itens').innerHTML='';(s.itens&&s.itens.length?s.itens:[{}]).forEach(row);$('f-mo').value=s.mo||'';$('f-des').value=s.des||'';$('f-gar').value=s.gar==null?90:s.gar;
+  $('itens').innerHTML='';(s.itens&&s.itens.length?s.itens:[{}]).forEach(row);$('f-mo').value=s.mo||'';$('f-des').value=s.des||'';$('f-gar').value=s.gar==null?90:s.gar;$('f-fp').value=s.fp||'Pix';$('f-tx').value=s.tx||'';$('f-rec').value=s.rec||'';$('f-rv').value=s.rv||0;vis();
   $('f-tit').textContent=E===null?'Novo serviço':'Editar serviço';$('excluir').classList.toggle('hide',E===null);$('cancel').classList.toggle('hide',E===null);prev()}
 function reset(){E=null;fill()}
 $('add').onclick=function(){row()};
-$('f').addEventListener('input',prev);
+function vis(){$('w-tx').classList.toggle('hide',$('f-fp').value!=='Cartão');$('w-rec').classList.toggle('hide',$('f-st').value!=='receber')}
+$('f').addEventListener('input',function(){prev();vis()});
+$('f-cli').onchange=function(){var m=S.filter(function(x){return x.cli===$('f-cli').value&&x.tel})[0];if(m&&!$('f-tel').value)$('f-tel').value=m.tel};
 $('salvar').onclick=function(){var s=ler();if(!s.cli){$('f-cli').focus();$('f-cli').placeholder='Informe o nome do cliente';return}
   if(E===null){s.id=Date.now();S.push(s)}else{s.id=S[E].id;S[E]=s}save();E=null;show('lista')};
 $('excluir').onclick=function(){if(E!==null&&confirm('Excluir este serviço?')){S.splice(E,1);save();E=null;show('lista')}};
 $('cancel').onclick=function(){E=null;show('lista')};
 
-function draw(){
+function draw(){draw2();
   var m=$('mes').value,mm=S.filter(function(s){return s.st!=='orc'&&s.data.slice(0,7)===m}),T={rev:0,cus:0,luc:0,rec:0},eq={};
   mm.forEach(function(s){var c=calc(s);T.rev+=c.rev;T.cus+=c.cus;T.luc+=c.luc;if(s.st==='receber')T.rec+=c.rev;eq[s.eq]=(eq[s.eq]||0)+c.luc});
-  $('r-lucro').textContent=R(T.luc);$('r-fat').textContent=R(T.rev);$('r-cus').textContent=R(T.cus);$('r-rec').textContent=R(T.rec);$('r-qtd').textContent=mm.length;
+  
   var ks=Object.keys(eq).sort(function(a,b){return eq[b]-eq[a]});
   $('r-eq').innerHTML=ks.length?ks.map(function(k){return'<div class="card item"><strong>'+esc(k)+'</strong><span class="lucro">'+R(eq[k])+'</span></div>'}).join(''):'<div class="empty">Nenhum serviço neste mês ainda.</div>';
   var now=new Date(),lim=new Date();lim.setDate(lim.getDate()+15);
@@ -166,9 +198,64 @@ function draw(){
     return'<div class="card item" data-i="'+o.i+'" tabindex="0" role="button"><div><strong>'+esc(s.cli)+'</strong><p>'+esc(s.eq)+(s.mod?' · '+esc(s.mod):'')+' · '+fd(new Date(s.data+'T12:00:00'))+'</p><span class="tag '+(s.st==='receber'?'rec':'')+'">'+st+'</span>'+(f&&s.st!=='orc'?' <span class="tag">Garantia até '+fd(f)+'</span>':'')+'</div><div class="lucro '+(c.luc<0?'neg':'pos')+'">'+R(c.luc)+'<p>de '+R(c.rev)+'</p></div></div>'}).join(''):'<div class="empty">'+(S.length?'Nada encontrado.':'Nenhum serviço registrado. Toque em Novo para começar.')+'</div>';
   document.querySelectorAll('#lista .item').forEach(function(el){var open=function(){E=+el.dataset.i;fill(S[E]);show('novo')};el.onclick=open;el.onkeydown=function(e){if(e.key==='Enter')open()}})
 }
+var D=[];try{D=JSON.parse(localStorage.getItem('bancada.desp')||'[]')||[]}catch(e){D=[]}
+function saveD(){try{localStorage.setItem('bancada.desp',JSON.stringify(D))}catch(e){}}
 $('mes').value=hoje().slice(0,7);$('mes').onchange=draw;$('busca').oninput=draw;
-$('bk-g').onclick=function(){$('bk').value=JSON.stringify(S);$('bk-m').textContent='Backup gerado. Copie o texto acima e guarde.'};
-$('bk-r').onclick=function(){try{var d=JSON.parse($('bk').value);if(!Array.isArray(d))throw 0;if(confirm('Substituir os dados atuais por este backup?')){S=d;save();draw();$('bk-m').textContent='Dados restaurados.'}}catch(e){$('bk-m').textContent='Texto de backup inválido. Cole o backup completo e tente de novo.'}};
+$('bk-g').onclick=function(){$('bk').value=JSON.stringify({s:S,d:D,p:P});$('bk-m').textContent='Backup gerado. Copie o texto acima e guarde.'};
+$('bk-r').onclick=function(){try{var d=JSON.parse($('bk').value);var a=Array.isArray(d)?d:d.s;if(!Array.isArray(a))throw 0;if(confirm('Substituir os dados atuais por este backup?')){S=a;if(d.d)D=d.d;if(d.p)P=d.p;save();saveD();try{localStorage.setItem(PK,JSON.stringify(P))}catch(e){}draw();$('bk-m').textContent='Dados restaurados.'}}catch(e){$('bk-m').textContent='Texto de backup inválido. Cole o backup completo e tente de novo.'}};
+var PK='bancada.perfil',P={};
+try{P=JSON.parse(localStorage.getItem(PK)||'{}')||{}}catch(e){P={}}
+['nome','tel','cid','pix'].forEach(function(k){$('p-'+k).value=P[k]||''});
+$('p-salvar').onclick=function(){P={nome:$('p-nome').value.trim(),tel:$('p-tel').value.trim(),cid:$('p-cid').value.trim(),pix:$('p-pix').value.trim()};try{localStorage.setItem(PK,JSON.stringify(P))}catch(e){}$('p-m').textContent=' Dados salvos.'};
+$('recibo').onclick=function(){var s=ler();if(!s.cli){$('f-cli').focus();$('f-cli').placeholder='Informe o nome do cliente';return}recibo(s)};
+function recibo(s){
+  var c=calc(s),f=fimGar(s),ln=[],r=$('rec');
+  (s.itens||[]).forEach(function(i){if(N(i.v)>0)ln.push([i.d||'Peça/material',N(i.v)])});
+  if(N(s.mo)>0)ln.push(['Mão de obra',N(s.mo)]);
+  var dt=fd(new Date(s.data+'T12:00:00')),orc=s.st==='orc',tit=orc?'ORÇAMENTO':'RECIBO DE SERVIÇO';
+  var gar=f&&!orc&&N(s.gar)>0?'Garantia de '+N(s.gar)+' dias, válida até '+fd(f)+'.':'';
+  var sit={pago:'Pago',receber:'A receber',orc:'Orçamento'}[s.st];
+  r.innerHTML='<div class="bar"><button class="btn" id="r-pdf" type="button">Salvar PDF / Imprimir</button><button class="btn ghost" id="r-wa" type="button">Enviar por WhatsApp</button><button class="btn ghost" id="r-x" type="button">Fechar</button></div>'
+  +'<div class="paper"><h1>'+esc(P.nome||'Prestador de serviço')+'</h1><p>'+esc([P.tel,P.cid].filter(Boolean).join(' · '))+'</p><h3>'+tit+'</h3><p>Data: '+dt+'</p>'
+  +'<p><b>Cliente:</b> '+esc(s.cli)+(s.tel?' · '+esc(s.tel):'')+'</p><p><b>Equipamento:</b> '+esc(s.eq)+(s.mod?' · '+esc(s.mod):'')+'</p>'+(s.def?'<p><b>Serviço:</b> '+esc(s.def)+'</p>':'')
+  +'<table>'+ln.map(function(l){return'<tr><td>'+esc(l[0])+'</td><td>'+R(l[1])+'</td></tr>'}).join('')+'<tr class="tot"><td>Total</td><td>'+R(c.rev)+'</td></tr></table>'
+  +'<p>Situação: '+sit+(s.fp?' · '+esc(s.fp):'')+'</p>'+(P.pix&&s.st==='receber'?'<p>Pix: '+esc(P.pix)+'</p>':'')+(gar?'<p>'+gar+'</p>':'')+'<div class="sig">Assinatura</div></div>';
+  r.classList.remove('hide');r.scrollTop=0;
+  $('r-x').onclick=function(){r.classList.add('hide')};
+  $('r-pdf').onclick=function(){window.print()};
+  $('r-wa').onclick=function(){
+    var tx=tit+(P.nome?' - '+P.nome:'')+'\n'+dt+'\nCliente: '+s.cli+'\nEquipamento: '+s.eq+(s.mod?' '+s.mod:'')+'\n'+(s.def?'Serviço: '+s.def+'\n':'')+ln.map(function(l){return l[0]+': '+R(l[1])}).join('\n')+'\nTOTAL: '+R(c.rev)+(gar?'\n'+gar:'')+(P.tel?'\nContato: '+P.tel:'');
+    var d=String(s.tel||'').replace(/\D/g,'');if(d&&d.length<=11)d='55'+d;
+    window.open('https://wa.me/'+d+'?text='+encodeURIComponent(tx),'_blank')}
+}
+
+function wa(tel,tx){var d=String(tel||'').replace(/\D/g,'');if(d&&d.length<=11)d='55'+d;window.open('https://wa.me/'+d+'?text='+encodeURIComponent(tx),'_blank')}
+function ass(){return P.nome?' '+P.nome:''}
+function cobrar(s){wa(s.tel,'Olá, '+s.cli+'! Tudo bem? Passando para lembrar do pagamento de '+R(saldo(s))+' referente ao serviço na sua '+s.eq.toLowerCase()+' (feito em '+fd(new Date(s.data+'T12:00:00'))+').'+(P.pix?' Pix: '+P.pix+'.':'')+' Qualquer dúvida, é só chamar!'+ass())}
+function draw2(){
+  var m=$('mes').value,T={rev:0,cus:0,luc:0},rec=0,dm=0,cl={};
+  S.forEach(function(s){if(s.st==='orc')return;var c=calc(s);rec+=saldo(s);var o=cl[s.cli]=cl[s.cli]||{n:0,l:0};o.n++;o.l+=c.luc;if(s.data.slice(0,7)===m){T.rev+=c.rev;T.cus+=c.cus;T.luc+=c.luc}});
+  D.forEach(function(x){if(x.data.slice(0,7)===m)dm+=N(x.val)});
+  $('r-lucro').textContent=R(T.luc-dm);$('r-fat').textContent=R(T.rev);$('r-cus').textContent=R(T.cus);$('r-rec').textContent=R(rec);$('r-dsp').textContent=R(dm);
+  var base=new Date(m+'-01T12:00:00'),ms=[],mx=1;
+  for(var k=5;k>=0;k--){var d=new Date(base);d.setMonth(d.getMonth()-k);var key=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0'),v=0;
+    S.forEach(function(s){if(s.st!=='orc'&&s.data.slice(0,7)===key)v+=calc(s).luc});D.forEach(function(x){if(x.data.slice(0,7)===key)v-=N(x.val)});
+    ms.push([d.toLocaleDateString('pt-BR',{month:'short'}).replace('.',''),v]);mx=Math.max(mx,Math.abs(v))}
+  $('r-gr').innerHTML='<div style="display:flex;gap:8px;align-items:flex-end">'+ms.map(function(x){return'<div style="flex:1;text-align:center;font-size:11px"><div style="height:'+Math.round(Math.abs(x[1])/mx*80)+'px;min-height:2px;background:'+(x[1]<0?'var(--bad)':'var(--pri)')+';border-radius:4px 4px 0 0"></div>'+x[0]+'<br><b>'+Math.round(x[1])+'</b></div>'}).join('')+'</div>';
+  var dv=S.filter(function(s){return saldo(s)>0});
+  $('r-dev').innerHTML=dv.length?dv.map(function(s){return'<div class="card item"><div><strong>'+esc(s.cli)+'</strong><p>'+esc(s.eq)+' · '+fd(new Date(s.data+'T12:00:00'))+'</p></div><div class="lucro">'+R(saldo(s))+'<br><button class="btn sm" data-c="'+S.indexOf(s)+'" type="button">Cobrar</button></div></div>'}).join(''):'<div class="empty">Ninguém devendo. 👏</div>';
+  document.querySelectorAll('[data-c]').forEach(function(b){b.onclick=function(){cobrar(S[+b.dataset.c])}});
+  var ck=Object.keys(cl).sort(function(a,b){return cl[b].l-cl[a].l});
+  $('r-cl').innerHTML=ck.length?ck.slice(0,5).map(function(k){return'<div class="card item"><div><strong>'+esc(k)+'</strong><p>'+cl[k].n+' serviço(s)</p></div><span class="lucro">'+R(cl[k].l)+'</span></div>'}).join(''):'<div class="empty">Sem clientes ainda.</div>';
+  $('cls').innerHTML=ck.map(function(k){return'<option value="'+esc(k)+'">'}).join('');
+  var now=new Date(),lim=new Date(),old=new Date();lim.setDate(lim.getDate()+30);old.setDate(old.getDate()-90);
+  var rv=S.filter(function(s){return s.st!=='orc'&&N(s.rv)>0}).map(function(s){var d=new Date(s.data+'T12:00:00');d.setMonth(d.getMonth()+N(s.rv));return{s:s,d:d}}).filter(function(o){return o.d<=lim&&o.d>=old}).sort(function(a,b){return a.d-b.d});
+  $('r-rv').innerHTML=rv.length?rv.map(function(o){return'<div class="card item"><div><strong>'+esc(o.s.cli)+'</strong><p>'+esc(o.s.eq)+' · '+(o.d<now?'atrasada, era ':'')+fd(o.d)+'</p></div><button class="btn sm" data-rv="'+S.indexOf(o.s)+'" type="button">Avisar</button></div>'}).join(''):'<div class="empty">Nenhuma revisão por perto.</div>';
+  document.querySelectorAll('[data-rv]').forEach(function(b){b.onclick=function(){var s=S[+b.dataset.rv];wa(s.tel,'Olá, '+s.cli+'! Já está na hora da revisão da sua '+s.eq.toLowerCase()+'. Quer agendar uma visita?'+ass())}});
+  $('d-l').innerHTML=D.filter(function(x){return x.data.slice(0,7)===m}).map(function(x){return'<div class="item" style="padding:6px 0;border-top:1px solid var(--line)"><span>'+esc(x.desc)+'</span><span>'+R(N(x.val))+' <button class="x" data-x="'+x.id+'" type="button" aria-label="Remover" style="padding:2px 8px">×</button></span></div>'}).join('');
+  document.querySelectorAll('[data-x]').forEach(function(b){b.onclick=function(){D=D.filter(function(x){return String(x.id)!==b.dataset.x});saveD();draw()}})
+}
+$('d-add').onclick=function(){var v=N($('d-v').value),m=$('mes').value;if(!v){$('d-v').focus();return}D.push({id:Date.now(),data:m===hoje().slice(0,7)?hoje():m+'-01',desc:$('d-d').value.trim()||'Despesa',val:v});saveD();$('d-d').value='';$('d-v').value='';draw()};
 draw();
 if('serviceWorker' in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('sw.js').catch(function(){})})}
 </script>
