@@ -62,6 +62,7 @@ nav button.on{color:var(--pri);border-top-color:var(--acc)}
 .empty{text-align:center;color:var(--mut);padding:28px 8px}
 textarea{min-height:90px;font-size:12px}
 .hide{display:none}
+nav button{font-size:13px;padding:14px 2px}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 
 #rec{--ink:#14232A;--line:#B9C3C2;position:fixed;inset:0;z-index:20;background:#E3E8E7;overflow:auto;padding:12px;padding-top:calc(12px + env(safe-area-inset-top,0px))}
@@ -95,10 +96,14 @@ textarea{min-height:90px;font-size:12px}
   <h2>Últimos 6 meses</h2><div class="card" id="r-gr"></div>
   <h2>Clientes que devem</h2><div id="r-dev"></div>
   <h2>Despesas fixas do mês</h2><div class="card"><div class="row" style="grid-template-columns:1fr 100px"><input id="d-d" placeholder="Ex.: combustível"><input id="d-v" type="number" step="0.01" inputmode="decimal" placeholder="Valor"></div><button class="btn sm" id="d-add" type="button">Adicionar despesa</button><div id="d-l"></div></div>
-  <h2>Lucro por equipamento</h2><div id="r-eq"></div>
+  <h2>De onde vem o dinheiro</h2><div id="r-de"></div>
+  <h2>Para onde vai o dinheiro</h2><div id="r-vai"></div><div id="r-eq" class="hide"></div>
   <h2>Melhores clientes</h2><div id="r-cl"></div>
   <h2>Garantias vencendo (15 dias)</h2><div id="r-gar"></div>
   <h2>Revisões a fazer (30 dias)</h2><div id="r-rv"></div>
+  <h2>Minhas categorias</h2>
+  <div class="card"><label for="c-pre" style="margin-top:0">Modelo de trabalho</label><select id="c-pre"></select><button class="btn ghost sm" id="c-usa" type="button">Usar modelo</button>
+  <div id="c-ch" style="margin-top:10px"></div><div class="row" style="grid-template-columns:1fr 100px;margin-top:8px"><input id="c-n" placeholder="Nova categoria"><button class="btn sm" id="c-add" type="button" style="margin:0">Adicionar</button></div></div>
   <h2>Meus dados (saem no recibo)</h2>
   <div class="card"><label for="p-nome" style="margin-top:0">Seu nome ou empresa</label><input id="p-nome"><label for="p-tel">Telefone</label><input id="p-tel" inputmode="tel"><label for="p-cid">Cidade</label><input id="p-cid"><label for="p-pix">Chave Pix (opcional)</label><input id="p-pix">
   <button class="btn sm" id="p-salvar" type="button">Salvar</button><span id="p-m" style="font-size:13px"></span></div>
@@ -124,12 +129,12 @@ textarea{min-height:90px;font-size:12px}
     <div><label for="f-st">Situação</label><select id="f-st"><option value="pago">Pago</option><option value="receber">A receber</option><option value="orc">Orçamento</option></select></div></div>
     <label for="f-cli">Cliente</label><input id="f-cli" list="cls" placeholder="Nome do cliente" autocomplete="off"><datalist id="cls"></datalist>
     <label for="f-tel">Telefone (opcional)</label><input id="f-tel" inputmode="tel">
-    <div class="two"><div><label for="f-eq">Equipamento</label><select id="f-eq"><option>Geladeira</option><option>Freezer</option><option>Expositora de bebidas</option><option>Máquina de lavar</option><option>Tanquinho</option><option>Micro-ondas</option><option>Outro</option></select></div>
-    <div><label for="f-mod">Marca / modelo</label><input id="f-mod"></div></div>
+    <div class="two"><div><label for="f-eq">Categoria</label><select id="f-eq"><option>Geladeira</option><option>Freezer</option><option>Expositora de bebidas</option><option>Máquina de lavar</option><option>Tanquinho</option><option>Micro-ondas</option><option>Outro</option></select></div>
+    <div><label for="f-mod">Detalhe (marca, modelo, item)</label><input id="f-mod"></div></div>
     <label for="f-def">Defeito e serviço feito</label><textarea id="f-def" style="font-size:16px;min-height:70px"></textarea>
-    <label>Peças e gás (descrição, custo, cobrado)</label>
+    <label>Materiais e peças (descrição, custo, cobrado)</label>
     <div id="itens"></div>
-    <button class="btn ghost sm" id="add" type="button">+ Adicionar peça ou gás</button>
+    <button class="btn ghost sm" id="add" type="button">+ Adicionar material</button>
     <div class="two"><div><label for="f-mo">Mão de obra (cobrado)</label><input id="f-mo" type="number" step="0.01" inputmode="decimal"></div>
     <div><label for="f-des">Deslocamento (custo)</label><input id="f-des" type="number" step="0.01" inputmode="decimal"></div></div>
     <label for="f-gar">Garantia (dias)</label><input id="f-gar" type="number" inputmode="numeric" value="90">
@@ -144,9 +149,29 @@ textarea{min-height:90px;font-size:12px}
     <button class="btn ghost hide" id="cancel" type="button">Cancelar</button>
   </form>
 </section>
+<section id="v-preco" class="hide">
+  <h2 style="margin-top:0">Quanto cobrar?</h2>
+  <label>Materiais usados (descrição e custo)</label><div id="pc-it"></div><button class="btn ghost sm" id="pc-add" type="button">+ Material</button>
+  <div class="two"><div><label for="pc-t">Tempo gasto (horas)</label><input id="pc-t" type="number" step="0.25" inputmode="decimal"></div><div><label for="pc-h">Valor da sua hora (R$)</label><input id="pc-h" type="number" step="0.01" inputmode="decimal"></div></div>
+  <div class="two"><div><label for="pc-d">Deslocamento (custo)</label><input id="pc-d" type="number" step="0.01" inputmode="decimal"></div><div><label for="pc-x">Taxa do cartão (%)</label><input id="pc-x" type="number" step="0.01" inputmode="decimal"></div></div>
+  <label>Margem de lucro: mínimo, recomendado, premium (%)</label>
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px"><input id="pc-m1" type="number" inputmode="decimal" aria-label="Margem mínima"><input id="pc-m2" type="number" inputmode="decimal" aria-label="Margem recomendada"><input id="pc-m3" type="number" inputmode="decimal" aria-label="Margem premium"></div>
+  <div id="pc-out"></div>
+</section>
+<section id="v-fin" class="hide">
+  <h2 style="margin-top:0">Finanças do mês</h2><div id="fi-al"></div>
+  <h2>Meta do mês</h2><div class="card"><label for="fi-meta" style="margin-top:0">Quanto você quer ganhar no mês (R$)</label><input id="fi-meta" type="number" inputmode="decimal"><div id="fi-m" style="margin-top:10px"></div></div>
+  <h2>Divisão do dinheiro</h2><div class="card"><p style="margin:0;font-size:13px;color:var(--mut)">Percentuais sobre o lucro líquido do mês. Ajuste do seu jeito.</p>
+    <div class="two"><div><label for="dv1">Meu salário %</label><input id="dv1" type="number" inputmode="decimal"></div><div><label for="dv2">Reserva %</label><input id="dv2" type="number" inputmode="decimal"></div></div>
+    <div class="two"><div><label for="dv3">Imposto %</label><input id="dv3" type="number" inputmode="decimal"></div><div><label for="dv4">Reinvestir %</label><input id="dv4" type="number" inputmode="decimal"></div></div><div id="fi-d" style="margin-top:10px"></div></div>
+  <h2>Fluxo de caixa</h2><div class="card" id="fi-f"></div>
+  <h2>MEI</h2><div class="card"><div class="two"><div><label for="fi-mei" style="margin-top:0">Limite anual (R$)</label><input id="fi-mei" type="number" inputmode="decimal"></div><div><label for="fi-dia" style="margin-top:0">Dia do boleto</label><input id="fi-dia" type="number" inputmode="numeric"></div></div><div id="fi-i" style="margin-top:10px"></div>
+    <p style="margin:8px 0 0;font-size:12px;color:var(--mut)">Confira o limite e as regras atuais no site oficial do MEI ou com um contador.</p></div>
+  <h2>Indicadores</h2><div class="grid" id="fi-k"></div>
+</section>
 </main>
 <div id="rec" class="hide"></div>
-<nav><button data-v="resumo" class="on">Resumo</button><button data-v="lista">Serviços</button><button data-v="novo">Novo</button></nav>
+<nav><button data-v="resumo" class="on">Resumo</button><button data-v="lista">Serviços</button><button data-v="novo">Novo</button><button data-v="preco">Preço</button><button data-v="fin">Finanças</button></nav>
 
 <script>
 var K='bancada.v1',S=[],E=null,$=function(i){return document.getElementById(i)};
@@ -160,7 +185,7 @@ function calc(s){var it=s.itens||[],rev=N(s.mo),cus=N(s.des);it.forEach(function
 function saldo(s){return s.st==='receber'?Math.max(0,calc(s).rev-N(s.rec)):0}
 function fimGar(s){if(!s.gar)return null;var d=new Date(s.data+'T12:00:00');d.setDate(d.getDate()+N(s.gar));return d}
 function fd(d){return d.toLocaleDateString('pt-BR')}
-function show(v){['resumo','lista','novo'].forEach(function(x){$('v-'+x).classList.toggle('hide',x!==v)});
+function show(v){['resumo','lista','novo','preco','fin'].forEach(function(x){$('v-'+x).classList.toggle('hide',x!==v)});
   document.querySelectorAll('nav button').forEach(function(b){b.classList.toggle('on',b.dataset.v===v)});
   if(v==='novo'&&E===null)reset();window.scrollTo(0,0);draw()}
 document.querySelectorAll('nav button').forEach(function(b){b.onclick=function(){if(b.dataset.v!=='novo')E=null;show(b.dataset.v)}});
@@ -171,7 +196,7 @@ function row(i){i=i||{};var d=document.createElement('div');d.className='row';
 function lerItens(){return Array.prototype.map.call($('itens').children,function(r){return{d:r.querySelector('.d').value.trim(),c:r.querySelector('.c').value,v:r.querySelector('.v').value}}).filter(function(i){return i.d||N(i.c)||N(i.v)})}
 function ler(){return{data:$('f-data').value||hoje(),st:$('f-st').value,cli:$('f-cli').value.trim(),tel:$('f-tel').value.trim(),eq:$('f-eq').value,mod:$('f-mod').value.trim(),def:$('f-def').value.trim(),itens:lerItens(),mo:$('f-mo').value,des:$('f-des').value,gar:$('f-gar').value,fp:$('f-fp').value,tx:$('f-tx').value,rec:$('f-rec').value,rv:$('f-rv').value}}
 function prev(){var c=calc(ler());$('p-tot').textContent=R(c.rev);$('p-cus').textContent=R(c.cus);$('p-luc').textContent=R(c.luc);$('p-luc').className=c.luc<0?'neg':'pos'}
-function fill(s){s=s||{};$('f-data').value=s.data||hoje();$('f-st').value=s.st||'pago';$('f-cli').value=s.cli||'';$('f-tel').value=s.tel||'';$('f-eq').value=s.eq||'Geladeira';$('f-mod').value=s.mod||'';$('f-def').value=s.def||'';
+function fill(s){s=s||{};$('f-data').value=s.data||hoje();$('f-st').value=s.st||'pago';$('f-cli').value=s.cli||'';$('f-tel').value=s.tel||'';fillCat(s.eq);$('f-eq').value=s.eq||C[0];$('f-mod').value=s.mod||'';$('f-def').value=s.def||'';
   $('itens').innerHTML='';(s.itens&&s.itens.length?s.itens:[{}]).forEach(row);$('f-mo').value=s.mo||'';$('f-des').value=s.des||'';$('f-gar').value=s.gar==null?90:s.gar;$('f-fp').value=s.fp||'Pix';$('f-tx').value=s.tx||'';$('f-rec').value=s.rec||'';$('f-rv').value=s.rv||0;vis();
   $('f-tit').textContent=E===null?'Novo serviço':'Editar serviço';$('excluir').classList.toggle('hide',E===null);$('cancel').classList.toggle('hide',E===null);prev()}
 function reset(){E=null;fill()}
@@ -184,7 +209,7 @@ $('salvar').onclick=function(){var s=ler();if(!s.cli){$('f-cli').focus();$('f-cl
 $('excluir').onclick=function(){if(E!==null&&confirm('Excluir este serviço?')){S.splice(E,1);save();E=null;show('lista')}};
 $('cancel').onclick=function(){E=null;show('lista')};
 
-function draw(){draw2();
+function draw(){draw2();drawFin();
   var m=$('mes').value,mm=S.filter(function(s){return s.st!=='orc'&&s.data.slice(0,7)===m}),T={rev:0,cus:0,luc:0,rec:0},eq={};
   mm.forEach(function(s){var c=calc(s);T.rev+=c.rev;T.cus+=c.cus;T.luc+=c.luc;if(s.st==='receber')T.rec+=c.rev;eq[s.eq]=(eq[s.eq]||0)+c.luc});
   
@@ -201,12 +226,12 @@ function draw(){draw2();
 var D=[];try{D=JSON.parse(localStorage.getItem('bancada.desp')||'[]')||[]}catch(e){D=[]}
 function saveD(){try{localStorage.setItem('bancada.desp',JSON.stringify(D))}catch(e){}}
 $('mes').value=hoje().slice(0,7);$('mes').onchange=draw;$('busca').oninput=draw;
-$('bk-g').onclick=function(){$('bk').value=JSON.stringify({s:S,d:D,p:P});$('bk-m').textContent='Backup gerado. Copie o texto acima e guarde.'};
-$('bk-r').onclick=function(){try{var d=JSON.parse($('bk').value);var a=Array.isArray(d)?d:d.s;if(!Array.isArray(a))throw 0;if(confirm('Substituir os dados atuais por este backup?')){S=a;if(d.d)D=d.d;if(d.p)P=d.p;save();saveD();try{localStorage.setItem(PK,JSON.stringify(P))}catch(e){}draw();$('bk-m').textContent='Dados restaurados.'}}catch(e){$('bk-m').textContent='Texto de backup inválido. Cole o backup completo e tente de novo.'}};
+$('bk-g').onclick=function(){$('bk').value=JSON.stringify({s:S,d:D,p:P,c:C});$('bk-m').textContent='Backup gerado. Copie o texto acima e guarde.'};
+$('bk-r').onclick=function(){try{var d=JSON.parse($('bk').value);var a=Array.isArray(d)?d:d.s;if(!Array.isArray(a))throw 0;if(confirm('Substituir os dados atuais por este backup?')){S=a;if(d.d)D=d.d;if(d.p)P=d.p;if(Array.isArray(d.c)&&d.c.length)C=d.c;saveC();save();saveD();try{localStorage.setItem(PK,JSON.stringify(P))}catch(e){}draw();$('bk-m').textContent='Dados restaurados.'}}catch(e){$('bk-m').textContent='Texto de backup inválido. Cole o backup completo e tente de novo.'}};
 var PK='bancada.perfil',P={};
 try{P=JSON.parse(localStorage.getItem(PK)||'{}')||{}}catch(e){P={}}
 ['nome','tel','cid','pix'].forEach(function(k){$('p-'+k).value=P[k]||''});
-$('p-salvar').onclick=function(){P={nome:$('p-nome').value.trim(),tel:$('p-tel').value.trim(),cid:$('p-cid').value.trim(),pix:$('p-pix').value.trim()};try{localStorage.setItem(PK,JSON.stringify(P))}catch(e){}$('p-m').textContent=' Dados salvos.'};
+$('p-salvar').onclick=function(){P=Object.assign(P,{nome:$('p-nome').value.trim(),tel:$('p-tel').value.trim(),cid:$('p-cid').value.trim(),pix:$('p-pix').value.trim()});try{localStorage.setItem(PK,JSON.stringify(P))}catch(e){}$('p-m').textContent=' Dados salvos.'};
 $('recibo').onclick=function(){var s=ler();if(!s.cli){$('f-cli').focus();$('f-cli').placeholder='Informe o nome do cliente';return}recibo(s)};
 function recibo(s){
   var c=calc(s),f=fimGar(s),ln=[],r=$('rec');
@@ -217,26 +242,31 @@ function recibo(s){
   var sit={pago:'Pago',receber:'A receber',orc:'Orçamento'}[s.st];
   r.innerHTML='<div class="bar"><button class="btn" id="r-pdf" type="button">Salvar PDF / Imprimir</button><button class="btn ghost" id="r-wa" type="button">Enviar por WhatsApp</button><button class="btn ghost" id="r-x" type="button">Fechar</button></div>'
   +'<div class="paper"><h1>'+esc(P.nome||'Prestador de serviço')+'</h1><p>'+esc([P.tel,P.cid].filter(Boolean).join(' · '))+'</p><h3>'+tit+'</h3><p>Data: '+dt+'</p>'
-  +'<p><b>Cliente:</b> '+esc(s.cli)+(s.tel?' · '+esc(s.tel):'')+'</p><p><b>Equipamento:</b> '+esc(s.eq)+(s.mod?' · '+esc(s.mod):'')+'</p>'+(s.def?'<p><b>Serviço:</b> '+esc(s.def)+'</p>':'')
+  +'<p><b>Cliente:</b> '+esc(s.cli)+(s.tel?' · '+esc(s.tel):'')+'</p><p><b>Item:</b> '+esc(s.eq)+(s.mod?' · '+esc(s.mod):'')+'</p>'+(s.def?'<p><b>Serviço:</b> '+esc(s.def)+'</p>':'')
   +'<table>'+ln.map(function(l){return'<tr><td>'+esc(l[0])+'</td><td>'+R(l[1])+'</td></tr>'}).join('')+'<tr class="tot"><td>Total</td><td>'+R(c.rev)+'</td></tr></table>'
   +'<p>Situação: '+sit+(s.fp?' · '+esc(s.fp):'')+'</p>'+(P.pix&&s.st==='receber'?'<p>Pix: '+esc(P.pix)+'</p>':'')+(gar?'<p>'+gar+'</p>':'')+'<div class="sig">Assinatura</div></div>';
   r.classList.remove('hide');r.scrollTop=0;
   $('r-x').onclick=function(){r.classList.add('hide')};
   $('r-pdf').onclick=function(){window.print()};
   $('r-wa').onclick=function(){
-    var tx=tit+(P.nome?' - '+P.nome:'')+'\n'+dt+'\nCliente: '+s.cli+'\nEquipamento: '+s.eq+(s.mod?' '+s.mod:'')+'\n'+(s.def?'Serviço: '+s.def+'\n':'')+ln.map(function(l){return l[0]+': '+R(l[1])}).join('\n')+'\nTOTAL: '+R(c.rev)+(gar?'\n'+gar:'')+(P.tel?'\nContato: '+P.tel:'');
+    var tx=tit+(P.nome?' - '+P.nome:'')+'\n'+dt+'\nCliente: '+s.cli+'\nItem: '+s.eq+(s.mod?' '+s.mod:'')+'\n'+(s.def?'Serviço: '+s.def+'\n':'')+ln.map(function(l){return l[0]+': '+R(l[1])}).join('\n')+'\nTOTAL: '+R(c.rev)+(gar?'\n'+gar:'')+(P.tel?'\nContato: '+P.tel:'');
     var d=String(s.tel||'').replace(/\D/g,'');if(d&&d.length<=11)d='55'+d;
     window.open('https://wa.me/'+d+'?text='+encodeURIComponent(tx),'_blank')}
 }
 
 function wa(tel,tx){var d=String(tel||'').replace(/\D/g,'');if(d&&d.length<=11)d='55'+d;window.open('https://wa.me/'+d+'?text='+encodeURIComponent(tx),'_blank')}
 function ass(){return P.nome?' '+P.nome:''}
-function cobrar(s){wa(s.tel,'Olá, '+s.cli+'! Tudo bem? Passando para lembrar do pagamento de '+R(saldo(s))+' referente ao serviço na sua '+s.eq.toLowerCase()+' (feito em '+fd(new Date(s.data+'T12:00:00'))+').'+(P.pix?' Pix: '+P.pix+'.':'')+' Qualquer dúvida, é só chamar!'+ass())}
+function cobrar(s){wa(s.tel,'Olá, '+s.cli+'! Tudo bem? Passando para lembrar do pagamento de '+R(saldo(s))+' referente ao serviço de '+s.eq+' (feito em '+fd(new Date(s.data+'T12:00:00'))+').'+(P.pix?' Pix: '+P.pix+'.':'')+' Qualquer dúvida, é só chamar!'+ass())}
 function draw2(){
-  var m=$('mes').value,T={rev:0,cus:0,luc:0},rec=0,dm=0,cl={};
-  S.forEach(function(s){if(s.st==='orc')return;var c=calc(s);rec+=saldo(s);var o=cl[s.cli]=cl[s.cli]||{n:0,l:0};o.n++;o.l+=c.luc;if(s.data.slice(0,7)===m){T.rev+=c.rev;T.cus+=c.cus;T.luc+=c.luc}});
+  var m=$('mes').value,T={rev:0,cus:0,luc:0},rec=0,dm=0,cl={},cat={},pcs=0,dls=0,txs=0;
+  S.forEach(function(s){if(s.st==='orc')return;var c=calc(s);rec+=saldo(s);var o=cl[s.cli]=cl[s.cli]||{n:0,l:0};o.n++;o.l+=c.luc;if(s.data.slice(0,7)===m){T.rev+=c.rev;T.cus+=c.cus;T.luc+=c.luc;var ic=(s.itens||[]).reduce(function(a,i){return a+N(i.c)},0);pcs+=ic;dls+=N(s.des);txs+=c.cus-ic-N(s.des);var o2=cat[s.eq]=cat[s.eq]||{r:0,l:0};o2.r+=c.rev;o2.l+=c.luc}});
   D.forEach(function(x){if(x.data.slice(0,7)===m)dm+=N(x.val)});
   $('r-lucro').textContent=R(T.luc-dm);$('r-fat').textContent=R(T.rev);$('r-cus').textContent=R(T.cus);$('r-rec').textContent=R(rec);$('r-dsp').textContent=R(dm);
+  var ck2=Object.keys(cat).sort(function(a,b){return cat[b].r-cat[a].r});
+  $('r-de').innerHTML=ck2.length?ck2.map(function(k){return barra(k,cat[k].r,T.rev,'var(--pri)',' · lucro '+R(cat[k].l))}).join(''):'<div class="empty">Nenhum serviço neste mês ainda.</div>';
+  $('r-vai').innerHTML=T.rev>0||dm>0?barra('Materiais e peças',pcs,T.rev,'var(--acc)')+barra('Deslocamento',dls,T.rev,'var(--acc)')+barra('Taxas de cartão',txs,T.rev,'var(--acc)')+barra('Despesas fixas',dm,T.rev,'var(--bad)')+barra('Sobrou (lucro líquido)',T.luc-dm,T.rev,'var(--ok)'):'<div class="empty">Sem movimento neste mês.</div>';
+  $('c-ch').innerHTML=C.map(function(c,i){return'<span class="tag" style="margin:2px">'+esc(c)+' <button class="x" data-k="'+i+'" type="button" aria-label="Remover" style="border:0;padding:0 4px">×</button></span>'}).join('');
+  document.querySelectorAll('[data-k]').forEach(function(b){b.onclick=function(){if(C.length>1){C.splice(+b.dataset.k,1);saveC();draw()}}});
   var base=new Date(m+'-01T12:00:00'),ms=[],mx=1;
   for(var k=5;k>=0;k--){var d=new Date(base);d.setMonth(d.getMonth()-k);var key=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0'),v=0;
     S.forEach(function(s){if(s.st!=='orc'&&s.data.slice(0,7)===key)v+=calc(s).luc});D.forEach(function(x){if(x.data.slice(0,7)===key)v-=N(x.val)});
@@ -251,11 +281,62 @@ function draw2(){
   var now=new Date(),lim=new Date(),old=new Date();lim.setDate(lim.getDate()+30);old.setDate(old.getDate()-90);
   var rv=S.filter(function(s){return s.st!=='orc'&&N(s.rv)>0}).map(function(s){var d=new Date(s.data+'T12:00:00');d.setMonth(d.getMonth()+N(s.rv));return{s:s,d:d}}).filter(function(o){return o.d<=lim&&o.d>=old}).sort(function(a,b){return a.d-b.d});
   $('r-rv').innerHTML=rv.length?rv.map(function(o){return'<div class="card item"><div><strong>'+esc(o.s.cli)+'</strong><p>'+esc(o.s.eq)+' · '+(o.d<now?'atrasada, era ':'')+fd(o.d)+'</p></div><button class="btn sm" data-rv="'+S.indexOf(o.s)+'" type="button">Avisar</button></div>'}).join(''):'<div class="empty">Nenhuma revisão por perto.</div>';
-  document.querySelectorAll('[data-rv]').forEach(function(b){b.onclick=function(){var s=S[+b.dataset.rv];wa(s.tel,'Olá, '+s.cli+'! Já está na hora da revisão da sua '+s.eq.toLowerCase()+'. Quer agendar uma visita?'+ass())}});
+  document.querySelectorAll('[data-rv]').forEach(function(b){b.onclick=function(){var s=S[+b.dataset.rv];wa(s.tel,'Olá, '+s.cli+'! Já está na hora da revisão do serviço de '+s.eq+'. Quer agendar uma visita?'+ass())}});
   $('d-l').innerHTML=D.filter(function(x){return x.data.slice(0,7)===m}).map(function(x){return'<div class="item" style="padding:6px 0;border-top:1px solid var(--line)"><span>'+esc(x.desc)+'</span><span>'+R(N(x.val))+' <button class="x" data-x="'+x.id+'" type="button" aria-label="Remover" style="padding:2px 8px">×</button></span></div>'}).join('');
   document.querySelectorAll('[data-x]').forEach(function(b){b.onclick=function(){D=D.filter(function(x){return String(x.id)!==b.dataset.x});saveD();draw()}})
 }
 $('d-add').onclick=function(){var v=N($('d-v').value),m=$('mes').value;if(!v){$('d-v').focus();return}D.push({id:Date.now(),data:m===hoje().slice(0,7)?hoje():m+'-01',desc:$('d-d').value.trim()||'Despesa',val:v});saveD();$('d-d').value='';$('d-v').value='';draw()};
+
+function barra(n,v,t,col,ex){var p=t>0?Math.max(0,Math.min(100,v/t*100)):0;return'<div class="card" style="padding:8px 12px"><div class="item"><span>'+esc(n)+'</span><b>'+R(v)+'</b></div><div style="height:6px;background:var(--line);border-radius:3px;margin-top:6px"><div style="height:6px;width:'+p.toFixed(0)+'%;background:'+col+';border-radius:3px"></div></div><p style="margin:4px 0 0;font-size:12px;color:var(--mut)">'+p.toFixed(0)+'% do faturado'+(ex||'')+'</p></div>'}
+var PRE={'Refrigeração e eletrodomésticos':['Geladeira','Freezer','Expositora de bebidas','Máquina de lavar','Tanquinho','Micro-ondas','Outro'],'Elétrica e hidráulica':['Instalação','Manutenção','Reparo','Emergência','Outro'],'Confeitaria e alimentos':['Bolos','Doces','Salgados','Encomendas','Outro'],'Beleza e estética':['Cabelo','Unhas','Maquiagem','Estética','Outro'],'Informática e celular':['Celular','Computador','Notebook','Redes','Outro'],'Obras e reformas':['Pintura','Pedreiro','Gesso','Marcenaria','Outro'],'Outro tipo de trabalho':['Serviço','Produto','Outro']},C=[];
+try{C=JSON.parse(localStorage.getItem('bancada.cat')||'[]')}catch(e){C=[]}
+if(!Array.isArray(C)||!C.length)C=PRE['Refrigeração e eletrodomésticos'].slice();
+function saveC(){try{localStorage.setItem('bancada.cat',JSON.stringify(C))}catch(e){}}
+function fillCat(v){v=v||'';$('f-eq').innerHTML=C.concat(v&&C.indexOf(v)<0?[v]:[]).map(function(c){return'<option>'+esc(c)+'</option>'}).join('')}
+$('c-pre').innerHTML=Object.keys(PRE).map(function(k){return'<option>'+esc(k)+'</option>'}).join('');
+$('c-usa').onclick=function(){if(confirm('Trocar suas categorias por este modelo? Os serviços já cadastrados não mudam.')){C=PRE[$('c-pre').value].slice();saveC();draw()}};
+$('c-add').onclick=function(){var n=$('c-n').value.trim();if(n&&C.indexOf(n)<0){C.push(n);saveC();$('c-n').value='';draw()}};
+var O=[],MT=[],DS=0;
+function prow(){var d=document.createElement('div');d.className='row';d.style.gridTemplateColumns='1fr 100px 36px';d.innerHTML='<input class="d" placeholder="Ex.: farinha, capacitor"><input class="c" type="number" step="0.01" inputmode="decimal" placeholder="Custo"><button type="button" class="x" aria-label="Remover">×</button>';d.querySelector('.x').onclick=function(){d.remove();pcalc()};$('pc-it').appendChild(d)}
+function pcalc(){
+  MT=Array.prototype.map.call($('pc-it').children,function(r){return{d:r.querySelector('.d').value.trim()||'Material',c:N(r.querySelector('.c').value)}}).filter(function(m){return m.c>0});
+  var mat=MT.reduce(function(a,m){return a+m.c},0),t=N($('pc-t').value),h=N($('pc-h').value),tx=Math.min(N($('pc-x').value),90)/100;DS=N($('pc-d').value);var custo=mat+DS+t*h;
+  O=[['Mínimo',1],['Recomendado',2],['Premium',3]].map(function(a){var mg=N($('pc-m'+a[1]).value),pr=custo*(1+mg/100)/(1-tx);return{n:a[0],mg:mg,pr:pr,mo:pr-mat,lu:pr*(1-tx)-custo}});
+  $('pc-out').innerHTML=custo>0?'<div class="card" style="margin-top:14px">Seu custo total: <b>'+R(custo)+'</b><br><span style="font-size:13px;color:var(--mut)">Materiais '+R(mat)+(DS?' · deslocamento '+R(DS):'')+(t*h?' · seu tempo '+R(t*h):'')+'</span></div>'+O.map(function(o,i){return'<div class="card"><div class="item"><strong>'+o.n+' ('+o.mg+'%)</strong><b style="font-size:22px">'+R(o.pr)+'</b></div><p style="margin:4px 0;font-size:13px;color:var(--mut)">Mão de obra: '+R(o.mo)+' · Lucro: '+R(o.lu)+'</p><button class="btn sm" data-u="'+i+'" type="button">Usar este valor</button></div>'}).join(''):'<div class="empty">Adicione materiais ou o tempo gasto para ver as sugestões.</div>';
+  document.querySelectorAll('[data-u]').forEach(function(b){b.onclick=function(){usar(+b.dataset.u)}})}
+function usar(i){var o=O[i];show('novo');fill({data:hoje(),st:'orc',itens:MT.map(function(m){return{d:m.d,c:m.c,v:m.c}}),mo:Math.max(0,Math.round(o.mo*100)/100),des:DS||''})}
+$('pc-add').onclick=prow;prow();
+$('pc-h').value=P.hora||25;[1,2,3].forEach(function(i){$('pc-m'+i).value=(P.m||[10,30,50])[i-1]});
+$('v-preco').addEventListener('input',function(){P.hora=N($('pc-h').value);P.m=[1,2,3].map(function(i){return N($('pc-m'+i).value)});try{localStorage.setItem(PK,JSON.stringify(P))}catch(e){}pcalc()});
+pcalc();
+
+function pb(p,col){return'<div style="height:8px;background:var(--line);border-radius:4px;margin:6px 0"><div style="height:8px;width:'+Math.max(0,Math.min(100,p)).toFixed(0)+'%;background:'+col+';border-radius:4px"></div></div>'}
+function drawFin(){
+  var m=$('mes').value,sv=S.filter(function(s){return s.st!=='orc'}),mm=sv.filter(function(s){return s.data.slice(0,7)===m}),T={rev:0,cus:0,luc:0},dm=0,pv=0,best=null;
+  mm.forEach(function(s){var c=calc(s);T.rev+=c.rev;T.cus+=c.cus;T.luc+=c.luc;pv+=saldo(s);if(!best||c.luc>best.l)best={l:c.luc,n:s.cli+' ('+s.eq+')'}});
+  D.forEach(function(x){if(x.data.slice(0,7)===m)dm+=N(x.val)});
+  var liq=T.luc-dm,meta=N(P.meta),mg=T.rev>0&&T.luc>0?T.luc/T.rev:.5,need=meta+dm;
+  $('fi-m').innerHTML=need>0?'<p style="margin:0">Para ganhar '+R(meta)+' e cobrir '+R(dm)+' de despesas, você precisa de <b>'+R(need)+'</b> de lucro, o que dá cerca de <b>'+R(need/mg)+'</b> de faturamento.</p>'+pb(T.luc/need*100,T.luc>=need?'var(--ok)':'var(--pri)')+'<p style="margin:0">Lucro dos serviços: '+R(T.luc)+'. '+(T.luc>=need?'Meta batida! 🎉':'Faltam '+R(need-T.luc)+'.')+'</p><p style="margin:6px 0 0;font-size:13px;color:var(--mut)">Ponto de equilíbrio: faturar cerca de '+R(dm/mg)+' só para pagar as despesas fixas.</p>':'<div class="empty">Informe sua meta ou cadastre despesas fixas.</div>';
+  var dv=P.dv||[50,15,6,29],nm=['Meu salário','Reserva','Imposto','Reinvestir'],sum=dv.reduce(function(a,b){return a+b},0),base=Math.max(0,liq);
+  $('fi-d').innerHTML=dv.map(function(p,i){return'<div class="item" style="padding:4px 0"><span>'+nm[i]+' ('+p+'%)</span><b>'+R(base*p/100)+'</b></div>'}).join('')+(sum!==100?'<p style="margin:6px 0 0;color:var(--bad);font-size:13px">Os percentuais somam '+sum+'%, o ideal é 100%.</p>':'')+(liq<=0?'<p style="margin:6px 0 0;font-size:13px;color:var(--mut)">Sem lucro líquido neste mês ainda, então nada a dividir.</p>':'');
+  var wk=[0,1,2,3,4].map(function(){return{e:0,s:0}}),wi=function(d){return Math.min(4,Math.floor((+d.slice(8,10)-1)/7))};
+  mm.forEach(function(s){var c=calc(s),w=wk[wi(s.data)];w.s+=c.cus;w.e+=s.st==='pago'?c.rev:Math.min(c.rev,N(s.rec))});
+  D.forEach(function(x){if(x.data.slice(0,7)===m)wk[wi(x.data)].s+=N(x.val)});
+  var ac=0;$('fi-f').innerHTML='<table style="width:100%;font-size:13px;border-collapse:collapse"><tr style="color:var(--mut);text-align:right"><td style="text-align:left">Semana</td><td>Entrou</td><td>Saiu</td><td>Saldo</td></tr>'+wk.map(function(w,i){ac+=w.e-w.s;return'<tr style="text-align:right;border-top:1px solid var(--line)"><td style="text-align:left;padding:5px 0">'+(i*7+1)+' a '+(i<4?i*7+7:31)+'</td><td>'+Math.round(w.e)+'</td><td>'+Math.round(w.s)+'</td><td class="'+(ac<0?'neg':'pos')+'">'+Math.round(ac)+'</td></tr>'}).join('')+'</table><p style="margin:8px 0 0">Saldo real do mês: <b class="'+(ac<0?'neg':'pos')+'">'+R(ac)+'</b> · Ainda a receber: <b>'+R(pv)+'</b></p>';
+  var yr=m.slice(0,4),fy=sv.filter(function(s){return s.data.slice(0,4)===yr}).reduce(function(a,s){return a+calc(s).rev},0),lim=N(P.mei)||81000,pm=fy/lim*100,td=new Date(),dia=N(P.dia)||20,nx=new Date(td.getFullYear(),td.getMonth(),dia,23,59);if(nx<td)nx=new Date(td.getFullYear(),td.getMonth()+1,dia,23,59);
+  $('fi-i').innerHTML='<p style="margin:0">Faturado em '+yr+': <b>'+R(fy)+'</b> de '+R(lim)+' ('+pm.toFixed(0)+'%)</p>'+pb(pm,pm>=100?'var(--bad)':pm>=80?'var(--acc)':'var(--ok)')+'<p style="margin:0">'+(pm>=100?'🚨 Você passou do limite anual.':pm>=80?'⚠️ Atenção: acima de 80% do limite.':'Dentro do limite.')+'</p><p style="margin:6px 0 0">Boleto do MEI vence dia '+dia+' (em '+Math.ceil((nx-td)/864e5)+' dias).</p>';
+  var al=[],pd=new Date(m+'-01T12:00:00');pd.setMonth(pd.getMonth()-1);var pk=pd.getFullYear()+'-'+String(pd.getMonth()+1).padStart(2,'0'),pr=sv.filter(function(s){return s.data.slice(0,7)===pk}).reduce(function(a,s){return a+calc(s).rev},0);
+  var ng=mm.filter(function(s){return calc(s).luc<0}).length,o30=new Date();o30.setDate(o30.getDate()-30);var at=S.filter(function(s){return saldo(s)>0&&new Date(s.data+'T12:00:00')<o30});
+  if(ng)al.push('⚠️ '+ng+' serviço(s) com prejuízo neste mês.');
+  if(at.length)al.push('💸 '+at.length+' cobrança(s) atrasada(s) há mais de 30 dias, somando '+R(at.reduce(function(a,s){return a+saldo(s)},0))+'.');
+  if(pr>0&&T.rev<pr*.8)al.push('📉 Faturamento '+Math.round((1-T.rev/pr)*100)+'% menor que o mês anterior.');
+  if(dm>0&&T.luc<dm)al.push('🔻 O lucro dos serviços ainda não cobre as despesas fixas.');
+  if(!al.length)al.push('✅ Tudo em ordem por aqui.');
+  $('fi-al').innerHTML=al.map(function(a){return'<div class="card">'+a+'</div>'}).join('');
+  $('fi-k').innerHTML=[['Ticket médio',mm.length?R(T.rev/mm.length):'-'],['Margem média',T.rev>0?(T.luc/T.rev*100).toFixed(0)+'%':'-'],['Serviços no mês',mm.length],['Mais lucrativo',best?R(best.l):'-']].map(function(k){return'<div class="card"><span>'+k[0]+'</span><b>'+k[1]+'</b></div>'}).join('');
+}
+$('fi-meta').value=P.meta||'';(P.dv||[50,15,6,29]).forEach(function(v,i){$('dv'+(i+1)).value=v});$('fi-mei').value=P.mei||81000;$('fi-dia').value=P.dia||20;
+$('v-fin').addEventListener('input',function(){P.meta=N($('fi-meta').value);P.dv=[1,2,3,4].map(function(i){return N($('dv'+i).value)});P.mei=N($('fi-mei').value);P.dia=N($('fi-dia').value);try{localStorage.setItem(PK,JSON.stringify(P))}catch(e){}drawFin()});
 draw();
 if('serviceWorker' in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('sw.js').catch(function(){})})}
 </script>
